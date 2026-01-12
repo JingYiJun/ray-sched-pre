@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cluster Pool 流程演示</title>
+    <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+    <div class="page">
+        <header class="topbar">
+            <div class="title">
+                <div class="title__h">Cluster Pool 调度流程（交互演示）</div>
+                <div class="title__sub">主队列 → Worker 处理（进度环）→ Saver；故障删除会进入重试队列优先调度</div>
+            </div>
+            <div class="controls">
+                <button id="btnStart" class="btn btn--primary">启动</button>
+                <button id="btnStop" class="btn">停止</button>
+                <button id="btnAddWorker" class="btn">增加 worker</button>
+                <button id="btnDeleteWorker" class="btn btn--danger" title="删除选中的 worker（未选中则删除最后一个）">
+                    删除 worker
+                </button>
+            </div>
+        </header>
+
+        <main class="stage">
+            <section class="lane">
+                <div class="queue-col">
+                    <div class="queue-title">队列</div>
+                    <div class="queue-panel">
+                        <div class="queue-panel__label">Input Queue</div>
+                        <div id="inputQueue" class="queue queue--vertical" aria-label="Input Queue"></div>
+                        <div class="queue-panel__footer">
+                            <div class="kpi">
+                                <div class="kpi__k">累计产生</div>
+                                <div id="kpiProduced" class="kpi__v">0</div>
+                            </div>
+                            <div class="kpi">
+                                <div class="kpi__k">队列长度</div>
+                                <div id="kpiInputLen" class="kpi__v">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-col">
+                    <div class="cluster">
+                        <div class="cluster__header">
+                            <div class="cluster__title">Cluster Pool</div>
+                            <div class="cluster__hint">点击 worker 可选中；删除将中断处理并把数据放入重试队列</div>
+                        </div>
+                        <div class="cluster__body">
+                            <div id="workers" class="workers" aria-label="Workers"></div>
+                        </div>
+                    </div>
+
+                    <div class="saver">
+                        <div class="saver__title">Saver</div>
+                        <div class="saver__body">
+                            <div class="kpi kpi--big">
+                                <div class="kpi__k">已保存</div>
+                                <div id="kpiSaved" class="kpi__v">0</div>
+                            </div>
+                            <div class="saved-strip">
+                                <div id="savedStrip" class="saved-strip__items" aria-label="Saved Items"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="queue-col">
+                    <div class="queue-title">重试队列</div>
+                    <div class="queue-panel queue-panel--retry">
+                        <div class="queue-panel__label">Retry Queue</div>
+                        <div id="retryQueue" class="queue queue--vertical" aria-label="Retry Queue"></div>
+                        <div class="queue-panel__footer">
+                            <div class="kpi">
+                                <div class="kpi__k">队列长度</div>
+                                <div id="kpiRetryLen" class="kpi__v">0</div>
+                            </div>
+                            <div class="kpi">
+                                <div class="kpi__k">故障次数</div>
+                                <div id="kpiFaults" class="kpi__v">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="legend">
+                <div class="legend__item">
+                    <span class="dot dot--new"></span>
+                    <span>新数据</span>
+                </div>
+                <div class="legend__item">
+                    <span class="dot dot--retry"></span>
+                    <span>重试数据</span>
+                </div>
+                <div class="legend__item">
+                    <span class="dot dot--busy"></span>
+                    <span>处理中</span>
+                </div>
+                <div class="legend__item">
+                    <span class="dot dot--creating"></span>
+                    <span>创建中（5s）</span>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="animLayer" class="anim-layer" aria-hidden="true"></div>
+    <script src="./app.js"></script>
+</body>
+
+</html>
